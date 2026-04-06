@@ -153,8 +153,8 @@ output "result" { ... }
 
 Use `try()` for optional props. Pin image tags. Include all 5 `radapp.io/*` labels.
 
-**Azure**: AVM via `module` — `"Azure/avm-res-<service>/azurerm"`
-**AWS**: Official/partner via `module` — `"terraform-aws-modules/<service>/aws"`
+**Azure**: AVM via `module` — look up exact source on azure.github.io/Azure-Verified-Modules/
+**AWS**: Official/partner via `module` — look up exact source on registry.terraform.io
 
 ### 5. `<Category>/<resourceType>/test/app.bicep`
 
@@ -166,7 +166,8 @@ extension <resourceType>
 // + extension secrets/containers if needed
 
 param environment string
-// + @secure() param password string if auth needed
+// + @secure() param password string if auth REQUIRED
+// If auth is optional, generate test WITHOUT auth (simpler default path)
 
 resource myapp 'Radius.Core/applications@2025-08-01-preview' = { ... }
 // + secrets resource if auth needed

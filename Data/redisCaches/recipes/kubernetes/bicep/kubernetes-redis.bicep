@@ -18,10 +18,7 @@ var namespace = context.runtime.kubernetes.namespace
 
 //////////////////////////////////////////
 // Redis variables
-// Container config based on Bitnami Redis Helm chart defaults
-// (https://github.com/bitnami/charts/tree/main/bitnami/redis)
-// Bicep does not have a native Helm provider, so we use
-// Deployment + Service resources matching the chart's configuration.
+// Redis container configuration
 //////////////////////////////////////////
 
 var redisSecretName = context.resource.properties.?secretName ?? ''
@@ -73,7 +70,6 @@ resource redis 'apps/Deployment@v1' = {
       spec: {
         containers: [
           {
-            // Container config mirrors Bitnami Redis chart standalone mode.
             name: 'redis'
             image: 'redis:${tag}'
             ports: [
