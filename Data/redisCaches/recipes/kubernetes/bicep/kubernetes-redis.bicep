@@ -18,7 +18,6 @@ var namespace = context.runtime.kubernetes.namespace
 
 //////////////////////////////////////////
 // Redis variables
-// Redis container configuration
 //////////////////////////////////////////
 
 var redisSecretName = context.resource.properties.?secretName ?? ''

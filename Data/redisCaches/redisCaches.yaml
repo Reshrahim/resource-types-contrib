@@ -52,7 +52,7 @@ types:
         properties: {
           application: myApplication.id
           environment: environment
-          container: {
+          containers: {
             image: 'frontend:1.25'
             ports: {
               web: {

@@ -13,7 +13,7 @@ A list of available Recipes for this resource type, including links to the Bicep
 |Platform| IaC Language| Recipe Name | Stage |
 |---|---|---|---|
 | Kubernetes | Bicep | kubernetes-redis.bicep | Alpha |
-| Kubernetes | Terraform | recipes/kubernetes/terraform/main.tf | Alpha |
+| Kubernetes | Terraform | main.tf | Alpha |
 
 ## Recipe Input Properties
 
