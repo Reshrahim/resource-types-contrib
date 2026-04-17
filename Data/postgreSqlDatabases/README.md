@@ -13,6 +13,7 @@ A list of available Recipes for this resource type, including links to the Bicep
 |Platform| IaC Language| Recipe Name | Stage |
 |---|---|---|---|
 | Kubernetes | Bicep | kubernetes-postgresql.bicep | Alpha |
+| Azure | Bicep | azure-postgresql.bicep | Alpha |
 
 ## Recipe Input Properties
 
