@@ -49,6 +49,8 @@ make build-bicep-recipe RECIPE_PATH=<Category>/<resourceType>/recipes/<platform>
 make build-terraform-recipe RECIPE_PATH=<Category>/<resourceType>/recipes/<platform>/terraform
 ```
 
+For Terraform validation, also run `terraform init && terraform validate` in the recipe's terraform directory. **Always clean up afterwards** — remove `.terraform/` and `.terraform.lock.hcl` to avoid committing provider binaries.
+
 - If all builds succeed: report ✅ for each
 - If a build fails with a code error: report ❌ with the error output
 - If a build fails due to environment issues (missing CLI, no cluster): report ⚠️ and list the prerequisite for the user

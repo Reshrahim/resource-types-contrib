@@ -64,9 +64,11 @@ types:
           application: myApplication.id
           environment: environment
           containers: {
-            image: 'frontend:1.25'
-            ports: {
-              web: { containerPort: 8080 }
+            frontend: {
+              image: 'frontend:1.25'
+              ports: {
+                web: { containerPort: 8080 }
+              }
             }
           }
           connections: {

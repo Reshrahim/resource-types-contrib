@@ -19,16 +19,18 @@ types:
 
       To connect your container to the database, create a connection from the Container resource to the database as shown below. 
 
-      resource frontend 'Applications.Core/containers@2023-10-01-preview' = {
+      resource frontend 'Radius.Compute/containers@2025-08-01-preview' = {
         name: 'frontend'
         properties: {
           application: myApplication.id
           environment: environment
-          container: {
-            image: 'frontend:1.25'
-            ports: {
-              web: {
-                containerPort: 8080
+          containers: {
+            frontend: {
+              image: 'frontend:1.25'
+              ports: {
+                web: {
+                  containerPort: 8080
+                }
               }
             }
           }

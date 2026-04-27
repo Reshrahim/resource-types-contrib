@@ -1,0 +1,77 @@
+namespace: Radius.Messaging
+types:
+  kafkaBrokers:  
+    description: |
+      The Radius.Messaging/kafkaBrokers Resource Type deploys an Apache Kafka broker. Kafka is a distributed event streaming platform used for high-throughput, fault-tolerant publish/subscribe messaging. To deploy a Kafka broker, add a kafkaBrokers resource to your application definition Bicep file.
+      ```
+      resource kafka 'Radius.Messaging/kafkaBrokers@2025-08-01-preview' = {
+          name: 'kafka'
+          properties: {
+            environment: environment
+            application: myApplication.id
+            size: 'S'
+            topicName: 'my-topic'
+          }
+        }
+      ```
+
+      To connect your container to the Kafka broker, create a connection from the Container resource to the broker as shown below. 
+      ```
+      resource myApplication 'Radius.Core/Applications@2025-08-01-preview' = { ... }
+
+      resource frontend 'Radius.Compute/containers@2025-08-01-preview' = {
+        name: 'frontend'
+        properties: {
+          application: myApplication.id
+          environment: environment
+          containers: {
+            frontend: {
+              image: 'frontend:1.25'
+              ports: {
+                web: {
+                  containerPort: 8080
+                }
+              }
+            }
+          }
+          connections: {
+            kafka: {
+              source: kafka.id
+            }
+          }
+        }
+      }
+      ```
+
+      The connection automatically injects environment variables into the container for all properties from the broker. The environment variables are named `CONNECTION_<CONNECTION-NAME>_<PROPERTY-NAME>`. In this example, the connection name is `kafka` so the environment variables will be:
+ 
+      - CONNECTION_KAFKA_HOST
+      - CONNECTION_KAFKA_PORT
+
+    apiVersions:
+      '2025-08-01-preview':
+        schema: 
+          type: object
+          properties:
+            environment:
+              type: string
+              description: "(Required) The Radius Environment ID. Typically set by the rad CLI. Typically value should be `environment`."
+            application:
+              type: string
+              description: "(Optional) The Radius Application ID. `myApplication.id` for example."
+            size:
+              type: string
+              enum: ['S', 'M', 'L']
+              description: "(Optional) The size of the Kafka broker. Defaults to `S` if not provided."
+            topicName:
+              type: string
+              description: "(Optional) The name of the default Kafka topic. Defaults to `default-topic` if not provided."
+            host:
+              type: string
+              description: The host name used to connect to the Kafka broker.
+              readOnly: true
+            port:
+              type: string
+              description: The port number used to connect to the Kafka broker.
+              readOnly: true
+          required: [environment]

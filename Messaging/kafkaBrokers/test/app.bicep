@@ -1,13 +1,9 @@
 extension radius
 extension containers
-extension postgreSqlDatabases
-extension secrets
+extension kafkaBrokers
 
 @description('The Radius environment ID')
 param environment string
-
-@secure()
-param password string
 
 resource myapp 'Radius.Core/applications@2025-08-01-preview' = {
   name: 'myapp'
@@ -22,7 +18,7 @@ resource mycontainer 'Radius.Compute/containers@2025-08-01-preview' = {
     environment: environment
     application: myapp.id
     containers: {
-      demo: {
+      kafkatest: {
         image: 'ghcr.io/radius-project/samples/demo:latest'
         ports: {
           web: {
@@ -32,35 +28,19 @@ resource mycontainer 'Radius.Compute/containers@2025-08-01-preview' = {
       }
     }
     connections: {
-      postgresql: {
-        source: postgresql.id
+      kafka: {
+        source: kafka.id
       }
     }
   }
 }
 
-resource postgresql 'Radius.Data/postgreSqlDatabases@2025-08-01-preview' = {
-  name: 'postgresql'
+resource kafka 'Radius.Messaging/kafkaBrokers@2025-08-01-preview' = {
+  name: 'kafka'
   properties: {
     environment: environment
     application: myapp.id
     size: 'S'
-    secretName: dbSecret.name
-  }
-}
-
-resource dbSecret 'Radius.Security/secrets@2025-08-01-preview' = {
-  name: 'dbsecret'
-  properties: {
-    environment: environment
-    application: myapp.id
-    data: {
-      USERNAME: {
-        value: 'admin'
-      }
-      PASSWORD: {
-        value: password
-      }
-    }
+    topicName: 'test-topic'
   }
 }

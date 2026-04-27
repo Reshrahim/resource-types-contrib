@@ -19,9 +19,16 @@ You are the Radius Resource Type Creator. You autonomously research a technology
 
 ## Workflow
 
+**Progress reporting**: At the start of each phase, output a clear status line so the caller can track progress:
+- `🔍 Phase 1: Researching <technology>...`
+- `📐 Phase 2: Designing schema and generating files...`
+- `✅ Phase 3: Validating generated files...`
+
 ### Phase 1: RESEARCH
 
 Delegate to `@resource-type-researcher` with the technology name. It returns a technology profile YAML block. Present the profile to the user for confirmation before proceeding.
+
+**Mandatory duplicate check**: Even if the caller provides full technology details, always verify no existing resource type covers this technology. Scan all category folders (`Compute/`, `Data/`, `Security/`, `Messaging/`, etc.) for overlapping types before proceeding.
 
 ### Phase 2: DESIGN
 
@@ -50,6 +57,8 @@ Generate these files, matching the reference type's style:
 4. **`<Category>/<resourceType>/test/app.bicep`** — test application using the resource type
 
 Present all generated files to the user.
+
+**Do NOT run `terraform init` or `terraform validate`** — that is the validator's responsibility. The creator only generates files.
 
 ### Phase 2b: RECIPE PLATFORM SELECTION
 
