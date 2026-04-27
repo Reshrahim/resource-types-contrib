@@ -14,6 +14,7 @@ A list of available Recipes for this resource type, including links to the Bicep
 |---|---|---|---|
 | Kubernetes | Bicep | kubernetes-kafka.bicep | Alpha |
 | Kubernetes | Terraform | main.tf | Alpha |
+| Azure | Bicep | azure-kafka.bicep | Alpha |
 
 ## Recipe Input Properties
 
