@@ -97,4 +97,4 @@ types:
               type: string
               description: The port number used to connect to the database.
               readOnly: true
-          required: [environment,secretName]
+          required: [environment, secretName]

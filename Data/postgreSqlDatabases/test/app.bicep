@@ -7,12 +7,29 @@ extension secrets
 param environment string
 
 @secure()
+@description('The password for the PostgreSQL database admin user. Generate with: -p password=$(openssl rand -hex 16)')
 param password string
 
 resource myapp 'Radius.Core/applications@2025-08-01-preview' = {
   name: 'myapp'
   properties: {
     environment: environment
+  }
+}
+
+resource dbCredentials 'Radius.Security/secrets@2025-08-01-preview' = {
+  name: 'db-creds'
+  properties: {
+    environment: environment
+    application: myapp.id
+    data: {
+      USERNAME: {
+        value: 'pgadmin'
+      }
+      PASSWORD: {
+        value: password
+      }
+    }
   }
 }
 
@@ -45,22 +62,6 @@ resource postgresql 'Radius.Data/postgreSqlDatabases@2025-08-01-preview' = {
     environment: environment
     application: myapp.id
     size: 'S'
-    secretName: dbSecret.name
-  }
-}
-
-resource dbSecret 'Radius.Security/secrets@2025-08-01-preview' = {
-  name: 'dbsecret'
-  properties: {
-    environment: environment
-    application: myapp.id
-    data: {
-      USERNAME: {
-        value: 'admin'
-      }
-      PASSWORD: {
-        value: password
-      }
-    }
+    secretName: dbCredentials.name
   }
 }
