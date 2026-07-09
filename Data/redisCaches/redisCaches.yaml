@@ -41,13 +41,34 @@ types:
       ```
 
       The connection automatically injects environment variables into the
-      container for all properties from the cache. The environment variables are
-      named `CONNECTION_<CONNECTION-NAME>_<PROPERTY-NAME>`. In this example the
-      connection name is `redis` so the environment variables will be:
+      container for all NON-SECRET properties from the cache. The environment
+      variables are named `CONNECTION_<CONNECTION-NAME>_<PROPERTY-NAME>`. In this
+      example the connection name is `redis` so the environment variables will be:
 
       - CONNECTION_REDIS_HOST
       - CONNECTION_REDIS_PORT
-      - CONNECTION_REDIS_URL
+
+      The connection string is NOT injected this way: it is a recipe SECRET
+      OUTPUT (see the `secrets` property below). Radius writes the recipe's
+      secret outputs into a managed `Radius.Security/secrets` resource named
+      `<resourceName>-secrets` and exposes a read-only reference to it on the
+      owner as `secrets` (readOnly `name`). The value never appears on resource
+      reads, in logs, or in the resource graph. A container consumes a secret
+      output by binding it into an env var via `secretKeyRef`, using
+      `redis.properties.secrets.name` as the `secretName` and the desired
+      `secrets` key (e.g. `connectionString`):
+      ```
+      env: {
+        CONNECTION_REDIS_URL: {
+          valueFrom: {
+            secretKeyRef: {
+              secretName: redis.properties.secrets.name
+              key: 'connectionString'
+            }
+          }
+        }
+      }
+      ```
 
     apiVersions:
       '2025-08-01-preview':
@@ -72,9 +93,16 @@ types:
               type: integer
               description: "(Read Only) The TLS port number used to connect to the cache. Mapped from the recipe module's `port` output (Azure Managed Redis uses 10000)."
               readOnly: true
-            url:
-              type: string
-              description: "(Read Only) The full TLS connection URL (`rediss://:<access-key>@<host>:<port>`) used to connect to the cache, including the access key. Mapped from the recipe module's `primaryConnectionString` output."
-              x-radius-sensitive: true
-              readOnly: true
+            secrets:
+              type: object
+              description: "(Read Only) Secret outputs produced by the recipe. Their values are written ONLY into the managed `Radius.Security/secrets` resource — never returned on resource reads, written to logs, or stored in the resource graph. The recipe maps module outputs onto these keys via the recipe pack's `outputs.secrets` field."
+              properties:
+                name:
+                  type: string
+                  readOnly: true
+                  description: "(Read Only) The name of the managed `Radius.Security/secrets` resource. Use as `secretName` in a container `secretKeyRef`."
+                connectionString:
+                  type: string
+                  readOnly: true
+                  description: "(Read Only) The full TLS connection URL (`rediss://:<access-key>@<host>:<port>`) used to authenticate to the cache, including the access key. Mapped from the recipe module's `primaryConnectionString` output via `outputs.secrets`. Consumed whole via `secretKeyRef` (key `connectionString`)."
           required: [environment]

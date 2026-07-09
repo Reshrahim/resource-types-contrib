@@ -39,13 +39,34 @@ types:
       ```
 
       The connection automatically injects environment variables into the
-      container for all properties from the database. The environment variables
-      are named `CONNECTION_<CONNECTION-NAME>_<PROPERTY-NAME>`. In this example
-      the connection name is `mongo` so the environment variables will be:
+      container for all NON-SECRET properties from the database. The environment
+      variables are named `CONNECTION_<CONNECTION-NAME>_<PROPERTY-NAME>`. In this
+      example the connection name is `mongo` so the environment variables will be:
 
       - CONNECTION_MONGO_DATABASE
       - CONNECTION_MONGO_ENDPOINT
-      - CONNECTION_MONGO_CONNECTIONSTRING
+
+      The connection string is NOT injected this way: it is a recipe SECRET
+      OUTPUT (see the `secrets` property below). Radius writes the recipe's
+      secret outputs into a managed `Radius.Security/secrets` resource named
+      `<resourceName>-secrets` and exposes a read-only reference to it on the
+      owner as `secrets` (readOnly `name`). The value never appears on resource
+      reads, in logs, or in the resource graph. A container consumes it by binding
+      it into an env var via `secretKeyRef`, using
+      `mongo.properties.secrets.name` as the `secretName` and the desired
+      `secrets` key (e.g. `connectionString`):
+      ```
+      env: {
+        ME_CONFIG_MONGODB_URL: {
+          valueFrom: {
+            secretKeyRef: {
+              secretName: mongo.properties.secrets.name
+              key: 'connectionString'
+            }
+          }
+        }
+      }
+      ```
 
       Portability note: this schema is platform-neutral so the same resource
       type works with Azure AVM, AWS Terraform modules, and Kubernetes recipes.
@@ -71,8 +92,16 @@ types:
               type: string
               description: The endpoint used to connect to the database. Mapped from the recipe module's output.
               readOnly: true
-            connectionString:
-              type: string
-              description: The connection string used to connect to the database. Mapped from the recipe module's output.
-              readOnly: true
+            secrets:
+              type: object
+              description: "(Read Only) Secret outputs produced by the recipe. Their values are written ONLY into the managed `Radius.Security/secrets` resource — never returned on resource reads, written to logs, or stored in the resource graph. The recipe maps module outputs onto these keys via the recipe pack's `outputs.secrets` field."
+              properties:
+                name:
+                  type: string
+                  readOnly: true
+                  description: "(Read Only) The name of the managed `Radius.Security/secrets` resource. Use as `secretName` in a container `secretKeyRef`."
+                connectionString:
+                  type: string
+                  readOnly: true
+                  description: "(Read Only) The connection string used to authenticate to the database. Mapped from the recipe module's `primaryReadWriteConnectionString` output via `outputs.secrets`. Consumed whole via `secretKeyRef` (key `connectionString`) — for example bound into `ME_CONFIG_MONGODB_URL`. To embed it inside a larger string, bind it to a helper env var and reference it from a `value` env var with Kubernetes `$(VAR)` interpolation."
           required: [environment]
